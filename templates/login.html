@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="h-100">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Página de Login</title>
+        <link href="{{url_for("static", filename="bootstrap.css")}}" rel="stylesheet">
+        <style type="text/css">
+            input[type="text"]:focus, input[type="password"]:focus {
+                outline : none !important;
+                box-shadow: 0px 0px 1px 1px rgba(255, 221, 89,1.0);  
+            }
+            
+            label {
+                color: rgba(255, 211, 42,1.0) !important;
+            }
+
+            button[type="submit"]:hover {
+                color: white;
+            }
+
+            .bg { 
+                background-image: url("{{url_for("static", filename="CamposFloridos.jpg")}}");
+
+                /* Full height */
+                height: 100%; 
+
+                /* Center and scale the image nicely */
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;
+            }
+
+        </style>
+    </head>
+    <body class="h-100" style="background-color: rgba(0,0,0,1)">
+        <div class="bg">
+        <div class="container-md h-100">
+            <div class="row h-100 justify-content-center align-items-center">
+                <div class="col-md-auto">
+                    <div class="card border border-warning" style="background-color:rgba(255,255,255,1)">
+                    <div class="card-body m-3">
+                        <form action="/login" method="POST">
+                            <div class="form-group row">
+                                <label for="username" class="col-sm-5 col-form-label">Seu Nome :D :</label>
+                                <input type="text" class="form-control col-sm-7 border border-warning text-body" name="username" id="username">
+                            </div>
+                            <div class="form-group row">
+                                <label for="password" class="col-sm-5 col-form-label">Palavra Secreta:</label>
+                                <input type="password" class="form-control col-sm-7 border border-warning text-body" name="password" id="password">
+                            </div>
+                            <div class="form-group row">
+                                <button type="submit" class="btn btn-outline-warning btn-block z-depth-5">Entrar</button>
+                            </div>
+                        <form>
+                </div>
+            </div>
+        </div>
+        
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+
+    </body>
+</html>
