@@ -26,6 +26,7 @@ def getPrincipalLinkVideo(url):
     chromeProfile.add_argument("--disable-gpu")
     chromeProfile.add_argument("--remote-debbung-port=9222")
 
+    print("[CRAWLER] Inicializando Chrome")
     chrome = webdriver.Chrome(chrome_options=chromeProfile)
     chrome.get("https://beta.proenem.com.br")
     wait = WebDriverWait(chrome, 20).until(EC.presence_of_element_located((By.ID, "email")))
@@ -34,8 +35,9 @@ def getPrincipalLinkVideo(url):
     inputUser.send_keys("meusestudos.gb@gmail.com")
     inputPass = chrome.find_element_by_id("password")
     inputPass.send_keys("Oportunidadea")
-    time.sleep(5)
+    time.sleep(2)
     inputPass.submit()
+    print("[CRAWLER] Login Realizado!")
     proxyServer.new_har("video")
 
     wait = WebDriverWait(chrome, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "bcwNtx")))
@@ -55,10 +57,12 @@ def getPrincipalLinkVideo(url):
     divTitle = chrome.find_element_by_id("WatchScreenContainer")
     title = divTitle.find_element_by_tag_name("h1").text
     wait = WebDriverWait(chrome, 20).until(EC.element_to_be_clickable((By.TAG_NAME, "iframe")))
-    time.sleep(10)
+    print("[CRAWLER] Obtendo Vídeo!")
+    time.sleep(8)
     har = proxyServer.har.copy()
     serverNav.stop()
     chrome.quit()
+    print("[CRAWLER] Trantando HAR")
     response = getVideoFormat(har)
     return (response, title)
     
