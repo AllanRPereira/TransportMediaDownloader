@@ -56,7 +56,7 @@ def getLink():
     elif linkList[0] == False:
         return "Don't found this video"
     else:
-        return f"{linkList[0][0]}|||{linkList[0][1]}"
+        return f"{linkList[0][0]}-|||{linkList[0][1]}"
 
 def appCrawlerVersion(linkValue):
     global linkList
