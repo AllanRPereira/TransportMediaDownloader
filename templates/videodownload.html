@@ -64,6 +64,11 @@
                                 <span aria-hidden="true">&times;</span>
                             </button>
                          </div>
+                        <div class="text-center">
+                            <div id="progress" class="spinner-grow text-warning" role="status" hidden>
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
                      </div>
                 </div>
             </div>
@@ -72,11 +77,25 @@
             async function findVideo() {
                 var alert = document.getElementById("information");
                 alert.innerHTML = `
-                               <strong>Informações:</strong> O download deste vídeo já vai começar :D!`;
+                               <strong>Informações:</strong> O download deste vídeo já vai começar :D!
+                               `;
+                document.getElementById("progress").hidden = false;
                 var linkVideo = document.getElementsByName("videolink")[0].value;
+                var statusWorker = "";
                 var response = await fetch("/videoworker", {method:"POST", body:linkVideo});
-                var blob = await response.blob();
-                var text = await blob.text().then(function(text) {return text;})
+                await new Promise(r => setTimeout(r, 60000));
+                while (true) {
+                    var response = await fetch("/getlink", {method:"POST"});
+                    var blob = await response.blob();
+                    var text = await blob.text().then(function(text) {return text;})
+                    if (text != "Not Ready") {
+                        break;
+                    } else if (text == "Don't found this video") {
+                        console.log("Don't found this video")
+                        return false
+                    }
+                    await new Promise(r => setTimeout(r, 5000));
+                }
                 var link = text.split("|||")[0]
                 var title = text.split("|||")[1]
                 if (link == "false") {

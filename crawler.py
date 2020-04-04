@@ -62,7 +62,7 @@ def getPrincipalLinkVideo(url):
     har = proxyServer.har.copy()
     serverNav.stop()
     chrome.quit()
-    print("[CRAWLER] Trantando HAR")
+    print("[CRAWLER] Tratando HAR")
     response = getVideoFormat(har)
     return (response, title)
     
