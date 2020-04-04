@@ -3,10 +3,7 @@ from browsermobproxy import Server
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.firefox.options import Options
-
 import os
-
 import time
 import requests
 import ast
@@ -18,45 +15,50 @@ def getPrincipalLinkVideo(url):
     serverNav.start()
     proxyServer = serverNav.create_proxy()
 
-    firefoxProfile = webdriver.FirefoxProfile()
-    firefoxProfile.set_proxy(proxyServer.selenium_proxy())
-    firefoxProfile.accept_untrusted_certs = True
-    firefoxProfile.assume_untrusted_cert_issuer = False
-    firefoxOptions = Options()
-    firefoxOptions.headless = True
-    firefox = webdriver.Firefox(options=firefoxOptions, firefox_profile=firefoxProfile)
-    firefox.get("https://beta.proenem.com.br")
-    wait = WebDriverWait(firefox, 20).until(EC.presence_of_element_located((By.ID, "email")))
+    chromeBinary = os.environ.get("GOOGLE_CHROME_BIN")
+    chromeProfile = webdriver.ChromeOptions()
+    chromeProfile.binary_location = chromeBinary
+    chromeProfile.add_argument("--allow-running-insecure-content")
+    chromeProfile.add_argument("--ignore-certificate-errors")
+    chromeProfile.add_argument(f"--proxy-server={proxyServer.proxy}")
+    chromeProfile.add_argument("--headless")
+    chromeProfile.add_argument("--no-sandbox")
+    chromeProfile.add_argument("--disable-gpu")
+    chromeProfile.add_argument("--remote-debbung-port=9222")
 
-    inputUser = firefox.find_element_by_id("email")
+    chrome = webdriver.Chrome(chrome_options=chromeProfile)
+    chrome.get("https://beta.proenem.com.br")
+    wait = WebDriverWait(chrome, 20).until(EC.presence_of_element_located((By.ID, "email")))
+
+    inputUser = chrome.find_element_by_id("email")
     inputUser.send_keys("meusestudos.gb@gmail.com")
-    inputPass = firefox.find_element_by_id("password")
+    inputPass = chrome.find_element_by_id("password")
     inputPass.send_keys("Oportunidadea")
     time.sleep(5)
     inputPass.submit()
     proxyServer.new_har("video")
 
-    wait = WebDriverWait(firefox, 100).until(EC.presence_of_element_located((By.CLASS_NAME, "bcwNtx")))
+    wait = WebDriverWait(chrome, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "bcwNtx")))
 
-    firefox.get(url)
+    chrome.get(url)
 
     try:
-        wait = WebDriverWait(firefox, 100).until(
+        wait = WebDriverWait(chrome, 20).until(
             EC.presence_of_element_located((By.TAG_NAME, "iframe"))
         )
-        wait = WebDriverWait(firefox, 100).until(
+        wait = WebDriverWait(chrome, 20).until(
             EC.element_to_be_clickable((By.TAG_NAME, "iframe"))
         )
     except:
         return False
 
-    divTitle = firefox.find_element_by_id("WatchScreenContainer")
+    divTitle = chrome.find_element_by_id("WatchScreenContainer")
     title = divTitle.find_element_by_tag_name("h1").text
-    firefox.find_element_by_tag_name("iframe").click()
-    time.sleep(20)
+    wait = WebDriverWait(chrome, 20).until(EC.element_to_be_clickable((By.TAG_NAME, "iframe")))
+    time.sleep(10)
     har = proxyServer.har.copy()
     serverNav.stop()
-    firefox.quit()
+    chrome.quit()
     response = getVideoFormat(har)
     return (response, title)
     
