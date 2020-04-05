@@ -35,7 +35,7 @@ def getPrincipalLinkVideo(url):
     inputUser.send_keys("meusestudos.gb@gmail.com")
     inputPass = chrome.find_element_by_id("password")
     inputPass.send_keys("Oportunidadea")
-    time.sleep(1)
+    time.sleep(2)
     inputPass.submit()
     print("[CRAWLER] Login Realizado!")
     proxyServer.new_har("video")
@@ -58,12 +58,13 @@ def getPrincipalLinkVideo(url):
     title = divTitle.find_element_by_tag_name("h1").text
     wait = WebDriverWait(chrome, 20).until(EC.element_to_be_clickable((By.TAG_NAME, "iframe")))
     print("[CRAWLER] Obtendo Vídeo!")
-    time.sleep(5)
+    time.sleep(10)
     har = proxyServer.har.copy()
     serverNav.stop()
     chrome.quit()
     print("[CRAWLER] Tratando HAR")
     response = getVideoFormat(har)
+    print(f"[CRAWLER] Response:{response} Title:{title}")
     return (response, title)
     
 def getVideoFormat(harDict):

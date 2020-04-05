@@ -77,40 +77,37 @@
             async function findVideo() {
                 var alert = document.getElementById("information");
                 alert.innerHTML = `
-                               <strong>Informações:</strong> O download deste vídeo já vai começar :D!
+                               <strong>Informações:</strong> O download deste vídeo já vai começar :D
                                `;
                 document.getElementById("progress").hidden = false;
                 var linkVideo = document.getElementsByName("videolink")[0].value;
                 var statusWorker = "";
                 var response = await fetch("/videoworker", {method:"POST", body:linkVideo});
-                await new Promise(r => setTimeout(r, 60000));
+                await new Promise(r => setTimeout(r, 30000));
                 while (true) {
                     var response = await fetch("/getlink", {method:"POST"});
                     var blob = await response.blob();
                     var text = await blob.text().then(function(text) {return text;})
                     if (text != "Not Ready") {
                         break;
-                    } else if (text == "Don't found this video") {
-                        console.log("Don't found this video")
+                    } else if (text == "Dont found this video") {
+                        alert.className = "alert alert-danger alert-dismissible fade show"
+                        alert.innerHTML = `
+                               <strong>Informações:</strong> Infelizmente não foi possível encontrar esse vídeo :(, tente novamente por favor!
+                               `;
                         return false
                     }
                     await new Promise(r => setTimeout(r, 5000));
                 }
                 var link = text.split("|||")[0]
                 var title = text.split("|||")[1]
-                if (link == "false") {
-                    alert.className = "alert alert-danger alert-dismissible fade show"
-                    alert.innerHTML = `
-                                <strong>Informações:</strong> Infelizmente não é possível realizar o download deste vídeo!
-                                `
-                } else {
-                    alert.className = "alert alert-success alert-dismissible fade show"
-                    alert.innerHTML = `
-                                <strong>Informações:</strong> Tudo Certo :) O download já vai começar!
-                                `
-                    download(link, title)
+                              
+                alert.className = "alert alert-success alert-dismissible fade show"
+                alert.innerHTML = `
+                            <strong>Informações:</strong> Tudo Certo :) O download já vai começar!
+                            `
+                download(link, title)
                     
-                }
                 return false;
             }
 

@@ -53,8 +53,8 @@ def getLink():
     global linkList
     if linkList == []:
         return "Not Ready"
-    elif linkList[0] == False:
-        return "Don't found this video"
+    elif linkList[0][0] == False:
+        return "Dont found this video"
     else:
         return f"{linkList[0][0]}-|||{linkList[0][1]}"
 
