@@ -16,7 +16,7 @@ async function download(urlVideo, fileName) {
                 const stream = blob.stream()
                 await stream.pipeTo(fileStream)
                 finishfile = 1
-            } else if (count == indexPart * 150) {
+            } else if (count == indexPart * 120) {
 
                 await getVideoPart(fileStream, urlForm, false).then(async function() {
                     indexPart += 1;
