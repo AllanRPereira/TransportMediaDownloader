@@ -9,7 +9,10 @@ import requests
 import ast
 
 def getPrincipalLinkVideo(url):
-    #Colocar certificado no firefox!!!!!!!
+    with open("actions.txt") as actions:
+        #Mudar para json
+        link, username, password = actions.read().split("\n")
+
     serverPort = {"port" : int(os.environ.get("PROXY", 3030))}
     serverNav = Server("browsermob/bmp/bin/browsermob-proxy", options=serverPort)
     serverNav.start()
@@ -28,13 +31,13 @@ def getPrincipalLinkVideo(url):
 
     print("[CRAWLER] Inicializando Chrome")
     chrome = webdriver.Chrome(chrome_options=chromeProfile)
-    chrome.get("https://beta.proenem.com.br")
+    chrome.get(link)
     wait = WebDriverWait(chrome, 20).until(EC.presence_of_element_located((By.ID, "email")))
 
     inputUser = chrome.find_element_by_id("email")
-    inputUser.send_keys("meusestudos.gb@gmail.com")
+    inputUser.send_keys(username)
     inputPass = chrome.find_element_by_id("password")
-    inputPass.send_keys("Oportunidadea")
+    inputPass.send_keys(password)
     time.sleep(2)
     inputPass.submit()
     print("[CRAWLER] Login Realizado!")
@@ -89,7 +92,7 @@ def getVideoFormat(harDict):
     return False
 
 if __name__ == "__main__":
-    link = "https://beta.proenem.com.br/app/plano-de-estudos/semana-4/09-03-2020/ao-vivo/21888"
+    link = input("Digite um link:")
     result = getPrincipalLinkVideo(link)
     with open("resultado.txt", "w") as resultt:
         resultt.write(str(result))

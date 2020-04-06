@@ -1,0 +1,1 @@
+Primeira versão software funcional para download de vídeos por meios dos pacotes TransportStream

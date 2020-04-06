@@ -6,7 +6,8 @@ import threading
 import os
 
 app = Flask(__name__)
-app.secret_key = "eb84d7e1f89488a41c657d47f35489beea957aac9278f1baa25a68d446e4fb93"
+with open("secret_key.txt", "r") as secret:
+    app.secret_key = secret.read()
 linkList = []
 
 @app.route("/")
@@ -21,7 +22,9 @@ def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        if username == "gabrielamelo" and password == "noscetipsum":
+        with open("user.txt", "r") as user:
+            user, key_pass = user.read().split("\n")
+        if username == user and password == key_pass:
             session["USERID"] = hashlib.md5(bytes(username + password, "utf-8")).hexdigest()
         else:
             redirect(url_for("index"))
@@ -39,13 +42,9 @@ def videoworker():
     global linkList
     if request.method == "POST":
         linkValue = request.data.decode()
-        if linkValue == "teste":
-            linkList.append(("https://fable.vzaar.com/v5/usp/134417/tBkLYgcFydbQ/21280257.ism/21280257-audio_eng=96885-video_eng=736000", "Testando Js Cliente"))
-            return "Ok Tester"
-        else:
-            requestLink = ThreadPool(processes=1)
-            threadInstance = requestLink.apply_async(appCrawlerVersion, (linkValue, ))
-            return "Request Succefful! Wait a moment!"
+        requestLink = ThreadPool(processes=1)
+        threadInstance = requestLink.apply_async(appCrawlerVersion, (linkValue, ))
+        return "Request Succefful! Wait a moment!"
     else:
         abort(404)
 
