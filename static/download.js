@@ -17,11 +17,13 @@ async function download(urlVideo, fileName) {
                 await stream.pipeTo(fileStream)
                 finishfile = 1
             } else if (count == indexPart * 120) {
-
-                await getVideoPart(fileStream, urlForm, false).then(async function() {
-                    indexPart += 1;
-                    fileNamePart = fileName + "-parte-" + indexPart + extension;
-                    fileStream = streamSaver.createWriteStream(fileNamePart);
+                await getVideoPart(fileStream, urlForm, false).then(function(response) {
+                    if (response != "Finish") {
+                        indexPart += 1;
+                        fileNamePart = fileName + "-parte-" + indexPart + extension;
+                        count += 1;
+                        fileStream = streamSaver.createWriteStream(fileNamePart);
+                    }
                 });
             }
         });
@@ -35,12 +37,16 @@ async function download(urlVideo, fileName) {
 
 async function getVideoPart(fileStream, url, prevent) {
     
-    var result = await fetch(url).then((response) => {
+    var result = await fetch(url).then(function(response) {
         if (response.status == 404) {
-            return "Finish"
+            return "Finish";
         } else {
             return response;
-        }});
+        }}).catch(async function (reason) {
+            console.log("Error:" + reason);
+            await new Promise(r => setTimeout(r, 2000));
+            resul = await getVideoPart(fileStream, url, prevent);
+        });
 
     if (result == "Finish") {
         return [result];
