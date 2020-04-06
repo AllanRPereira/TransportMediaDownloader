@@ -20,11 +20,11 @@ def index():
 @app.route("/login", methods=["POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form["username"].replace(" ", "")
+        password = request.form["password"].replace(" ", "")
         print(f"User:{username} Password:{password}")
         with open("user.txt", "r") as user:
-            user, key_pass = user.read().split("\n")[0:2]
+            user, key_pass = [data.replace(" ", "") for data in user.read().split("\n")[0:2]]
         if username == user and password == key_pass:
             session["USERID"] = hashlib.md5(bytes(username + password, "utf-8")).hexdigest()
         else:
