@@ -21,7 +21,7 @@ def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        if username == "gabriela melo" and password == "nosceitipsum":
+        if username == "gabrielamelo" and password == "noscetipsum":
             session["USERID"] = hashlib.md5(bytes(username + password, "utf-8")).hexdigest()
         else:
             redirect(url_for("index"))
@@ -36,11 +36,12 @@ def videodownload():
 
 @app.route("/videoworker", methods=["POST"])
 def videoworker():
-    
+    global linkList
     if request.method == "POST":
         linkValue = request.data.decode()
         if linkValue == "teste":
-            return "Top"
+            linkList.append(("https://fable.vzaar.com/v5/usp/134417/tBkLYgcFydbQ/21280257.ism/21280257-audio_eng=96885-video_eng=736000", "Testando Js Cliente"))
+            return "Ok Tester"
         else:
             requestLink = ThreadPool(processes=1)
             threadInstance = requestLink.apply_async(appCrawlerVersion, (linkValue, ))
