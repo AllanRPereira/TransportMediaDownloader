@@ -59,6 +59,11 @@ def getLink():
     else:
         return f"{linkList[0][0]}-|||{linkList[0][1]}"
 
+@app.route("/logout", methods=["GET"])
+def logout():
+    session.pop("USERID")
+    return "Deslogado!"
+
 def appCrawlerVersion(linkValue):
     global linkList
     response = crawler.getPrincipalLinkVideo(linkValue)
