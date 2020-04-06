@@ -1,0 +1,15 @@
+Running BrowserMob Proxy using LittleProxy implementation. To revert to the legacy implementation, run the proxy with the command-line option '--use-littleproxy false'.
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by com.google.inject.internal.cglib.core.$ReflectUtils$2 (file:/home/iknow/Documentos/MiniProj/ProEnem/Apps/AppChromeGitHub/AppChrome/src/browsermob/bmp/lib/browsermob-dist-2.1.4.jar) to method java.lang.ClassLoader.defineClass(java.lang.String,byte[],int,int,java.security.ProtectionDomain)
+WARNING: Please consider reporting this to the maintainers of com.google.inject.internal.cglib.core.$ReflectUtils$2
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+[INFO  2020-04-06T18:23:27,499 net.lightbody.bmp.proxy.Main] (main) Starting BrowserMob Proxy version 2.1.4 
+[INFO  2020-04-06T18:23:27,762 org.eclipse.jetty.util.log] (main) jetty-7.x.y-SNAPSHOT 
+[INFO  2020-04-06T18:23:28,163 org.eclipse.jetty.util.log] (main) started o.e.j.s.ServletContextHandler{/,null} 
+[INFO  2020-04-06T18:23:29,089 org.eclipse.jetty.util.log] (main) Started SelectChannelConnector@0.0.0.0:3030 
+[INFO  2020-04-06T18:23:32,951 org.littleshoot.proxy.impl.DefaultHttpProxyServer] (qtp2145420209-19) Starting proxy at address: 0.0.0.0/0.0.0.0:8081 
+[INFO  2020-04-06T18:23:33,036 org.littleshoot.proxy.impl.DefaultHttpProxyServer] (qtp2145420209-19) Proxy listening with TCP transport 
+[INFO  2020-04-06T18:23:33,313 org.littleshoot.proxy.impl.DefaultHttpProxyServer] (qtp2145420209-19) Proxy started at address: /0:0:0:0:0:0:0:0:8081 
+[INFO  2020-04-06T18:25:11,444 org.littleshoot.proxy.impl.DefaultHttpProxyServer] (LittleProxy-JVM-shutdown-hook) Shutting down proxy server immediately (non-graceful) 
+[INFO  2020-04-06T18:25:11,459 org.littleshoot.proxy.impl.DefaultHttpProxyServer] (LittleProxy-JVM-shutdown-hook) Closing all channels (non-graceful) 
