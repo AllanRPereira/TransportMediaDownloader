@@ -3,12 +3,19 @@ from browsermobproxy import Server
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from videoplayer.player_1 import playerOne
+from videoplayer.player_2 import playerTwo
+from videoplayer.player_3 import playerThree
+
 import os
 import time
 import requests
 import ast
 
 def getPrincipalLinkVideo(url):
+    videoLinks = ["vzaar", "livestream", "vimeo"]
+    players = [playerOne, playerTwo, playerThree]
+
     with open("actions.txt") as actions:
         #Mudar para json
         link, username, password = actions.read().split("\n")
@@ -33,42 +40,45 @@ def getPrincipalLinkVideo(url):
     chrome = webdriver.Chrome(chrome_options=chromeProfile)
     chrome.get(link)
     wait = WebDriverWait(chrome, 20).until(EC.presence_of_element_located((By.ID, "email")))
-
+    time.sleep(7)
     inputUser = chrome.find_element_by_id("email")
     inputUser.send_keys(username)
     inputPass = chrome.find_element_by_id("password")
     inputPass.send_keys(password)
     time.sleep(2)
     inputPass.submit()
+    time.sleep(3)
+
     print("[CRAWLER] Login Realizado!")
     proxyServer.new_har("video")
-
-    wait = WebDriverWait(chrome, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "bcwNtx")))
-
     chrome.get(url)
-
-    try:
-        wait = WebDriverWait(chrome, 20).until(
-            EC.presence_of_element_located((By.TAG_NAME, "iframe"))
-        )
-        wait = WebDriverWait(chrome, 20).until(
-            EC.element_to_be_clickable((By.TAG_NAME, "iframe"))
-        )
-    except:
-        return False
-
-    divTitle = chrome.find_element_by_id("WatchScreenContainer")
-    title = divTitle.find_element_by_tag_name("h1").text
-    wait = WebDriverWait(chrome, 20).until(EC.element_to_be_clickable((By.TAG_NAME, "iframe")))
-    print("[CRAWLER] Obtendo Vídeo!")
-    time.sleep(10)
-    har = proxyServer.har.copy()
-    serverNav.stop()
+    print("[CRAWLER] Aguardando Frame")
+    WebDriverWait(chrome, 20).until(EC.element_to_be_clickable((By.TAG_NAME, "iframe")))
+    part = chrome.find_element_by_id("childrenWrapper")
+    while True:
+        partVideo = part.find_element_by_tag_name("div")
+        if partVideo.get_attribute("id") != "WatchScreenContainer":
+            print("[CRAWLER] Há um bloqueio na tela! Aguardando remoção")
+            className = partVideo.get_attribute("class")
+            chrome.execute_script(f"document.getElementsByClassName(\"{className}\")[0].parentNode.removeChild(document.getElementsByClassName(\"{className}\")[0])")
+            time.sleep(2)
+        else:
+            break
+    frame = chrome.find_elements_by_tag_name("iframe")[0]
+    title = part.find_elements_by_tag_name("h1")[0].text
+    print(f"[CRAWLER] Título:{title}")
+    print("[CRAWLER] Frame encontrado")
+    src = frame.get_property("src")
+    videoTypeIndex = [index for index, videoName in enumerate(videoLinks) if videoName in src][0]
+    functionVideo = players[videoTypeIndex]
+    print("[CRAWLER] Aguardando carregamento dos pacotes")
+    time.sleep(8)
+    print(f"[CRAWLER] Passando para a função {videoLinks[videoTypeIndex]}")
+    result = functionVideo(chrome, proxyServer)
+    print(f"[CRAWLER] Retornado: {result}")
     chrome.quit()
-    print("[CRAWLER] Tratando HAR")
-    response = getVideoFormat(har)
-    print(f"[CRAWLER] Response:{response} Title:{title}")
-    return (response, title)
+    serverNav.stop()
+    return (title,) + result
     
 def getVideoFormat(harDict):
     codec = ""

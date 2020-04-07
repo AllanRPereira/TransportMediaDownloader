@@ -21,10 +21,11 @@ def index():
 def login():
     if request.method == "POST":
         username = request.form["username"].replace(" ", "")
-        password = request.form["password"].replace(" ", "")
-        print(f"User:{username} Password:{password}")
+        password = request.form["password"]
         with open("user.txt", "r") as user:
-            user, key_pass = [data.replace(" ", "") for data in user.read().split("\n")[0:2]]
+            data = user.read().split('\n')
+            user, key_pass = data[0].replace(" ", ""), data[1]
+            
         if username == user and password == key_pass:
             session["USERID"] = hashlib.md5(bytes(username + password, "utf-8")).hexdigest()
         else:
@@ -54,15 +55,15 @@ def getLink():
     global linkList
     if linkList == []:
         return "Not Ready"
-    elif linkList[0][0] == False:
+    elif linkList[0] == False:
         return "Dont found this video"
     else:
-        return f"{linkList[0][0]}-|||{linkList[0][1]}"
+        return f"{linkList[0][0]}-|||{linkList[0][1]}|||{linkList[0][2]}"
 
 @app.route("/logout", methods=["GET"])
 def logout():
     session.pop("USERID")
-    return "Deslogado!"
+    return redirect(url_for("index"))
 
 def appCrawlerVersion(linkValue):
     global linkList

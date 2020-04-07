@@ -1,0 +1,3 @@
+player_1 = Vzaar -> Atráves do HAR e algumas chamadas de requisição!
+player_2 = Livestream -> Já implementado, o importante é entrar na página, não são necessários clicks!
+player_3 = Vimeo -> 
