@@ -5,6 +5,7 @@ from multiprocessing.pool import ThreadPool
 import threading
 import os
 
+
 app = Flask(__name__)
 with open("secret.txt", "r") as secret:
     app.secret_key = secret.read()
@@ -55,7 +56,7 @@ def getLink():
     global linkList
     if linkList == []:
         return "Not Ready"
-    elif linkList[0] == False:
+    elif linkList[0][1] == False:
         return "Dont found this video"
     else:
         return f"{linkList[0][0]}-|||{linkList[0][1]}|||{linkList[0][2]}"

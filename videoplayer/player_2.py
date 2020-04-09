@@ -13,7 +13,7 @@ def playerTwo(chrome, proxyInstance):
     button = chrome.find_element_by_class_name("watch_again_link")
     button.click()
     chrome.switch_to_default_content()
-    time.sleep(8)
+    time.sleep(10)
     chrome.get("https://www.google.com")
     har = proxyInstance.har.copy()
     with open("newharlive.txt", "w") as live:
@@ -48,7 +48,7 @@ def getVideoFormat(harDict):
                 return False
             numberOfParts = max([int(urls.split(".")[0].split("-")[::-1][0]) for urls in requestParts.split("\n") if urls.find(".ts") != -1])
             linkDownload = urlParts.split(".m3u8")[0] + "-"
-            return (linkDownload, numberOfParts)
+            return ("https://cors-anywhere.herokuapp.com/"+linkDownload, numberOfParts)
     return False
 
 if __name__ == "__main__":

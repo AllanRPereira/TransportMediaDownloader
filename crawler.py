@@ -45,7 +45,7 @@ def getPrincipalLinkVideo(url):
     inputUser.send_keys(username)
     inputPass = chrome.find_element_by_id("password")
     inputPass.send_keys(password)
-    time.sleep(2)
+    time.sleep(3)
     inputPass.submit()
     time.sleep(3)
 

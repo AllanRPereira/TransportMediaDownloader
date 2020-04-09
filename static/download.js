@@ -1,20 +1,21 @@
 
-async function download(urlVideo, fileName, packageNumber, partNumber) {
+async function download(urlVideo, fileName, packageNumberReceive, partNumber) {
     var indexPart;
     var count;
     var percent;
     var initPercent = 0;
     var limit = false;
     const extension = ".ts";
-    if (packageNumber != 0) {
-        var numberOfPackage = packageNumber;
+    if (packageNumberReceive != 0) {
+        var numberOfPackage = packageNumberReceive;
     } else {
         var numberOfPackage = await getLastPackage(urlVideo, 700, 125, extension);
     }
-    var separator = Math.ceil(numberOfPackage / 3);
+    var separator = Math.ceil(numberOfPackage / 3) + 1;
     if (partNumber == 0) {
         indexPart = 1;
         count = 1;
+        limit = numberOfPackage;
         percent = 100 / numberOfPackage;
     } else {
         indexPart = partNumber;
@@ -24,16 +25,15 @@ async function download(urlVideo, fileName, packageNumber, partNumber) {
         initPercent = count;
     };
     var urlForm;
-    var fileNameOne = fileName + "-parte-" + indexPart + extension;
-    var fileStream = streamSaver.createWriteStream(fileNameOne);
-    await new Promise(r => setTimeout(r, 2000))
+    fileNameOne = fileName + "-parte-" + indexPart + extension;
+    var fileStream = await streamSaver.createWriteStream(fileNameOne);
     var finishfile = 0;
     urlForm = urlVideo + count + extension;
     while(true) {
         await getVideoPart(fileStream, urlForm, true).then(async function(result) {
             count += 1;
             urlForm = urlVideo + count + extension;
-            if (result[0] == "Finish" || limit == count) {
+            if (result == "Finish" || limit == count) {
                 const blob = new Blob([""]);
                 const stream = blob.stream()
                 await stream.pipeTo(fileStream)
@@ -75,8 +75,7 @@ async function getLastPackage(url, packageNumber, numberDown, extension) {
 }
 
 async function getVideoPart(fileStream, url, prevent) {
-    
-    var result = await fetch(url, { mode : "no-cors"}).then(function(response) {
+    var result = await fetch(url).then(function(response) {
         if (response.status == 404) {
             return "Finish";
         } else {
@@ -88,17 +87,18 @@ async function getVideoPart(fileStream, url, prevent) {
         });
 
     if (result == "Finish") {
-        return [result];
+        return result;
     }
-
     
     await result.blob().then(async function(content) {
-            const Readable = content.stream()
+            const Readable = await content.stream()
             if (window.WritableStream && Readable.pipeTo) {
                 await Readable.pipeTo(fileStream, {preventClose:prevent});
-            }
+                return true;
+            };
         });
-        
     return true;
     
 }
+
+

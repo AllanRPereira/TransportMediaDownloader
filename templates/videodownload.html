@@ -5,7 +5,7 @@
         <title>Download do Vídeo</title>
         <script src="https://cdn.jsdelivr.net/npm/web-streams-polyfill@2.0.2/dist/ponyfill.min.js"></script>
         <script src="{{url_for("static", filename="StreamSaver.js")}}"></script>        
-        <script src="{{url_for("static", filename="sw.js")}}"></script>           
+        <script src="{{url_for("static", filename="sw.js")}}"></script> 
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="{{url_for("static", filename="bootstrap.css")}}" rel="stylesheet">
         <style type="text/css">
@@ -127,7 +127,12 @@
                     var blob = await response.blob();
                     var text = await blob.text().then(function(text) {return text;});
                     if (text != "Not Ready" && text != "Dont found this video") {
-                        break;
+                        alert.className = "alert alert-danger alert-dismissible fade show"
+                        alert.innerHTML = `
+                               <strong>Informações:</strong> Infelizmente houve algum erro na busca do vídeo :(, fale com allan pra ele resolver! 
+                               `;
+                        document.getElementById("buttonClick").disabled = false;
+                        return false
                     } else if (text == "Dont found this video") {
                         alert.className = "alert alert-danger alert-dismissible fade show"
                         alert.innerHTML = `
@@ -135,7 +140,7 @@
                                `;
                         document.getElementById("buttonClick").disabled = false;
                         return false
-                    }
+                    } 
                     await new Promise(r => setTimeout(r, 5000));
                 }
                 var listData = text.split("|||")
