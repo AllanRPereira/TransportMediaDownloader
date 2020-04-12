@@ -5,6 +5,7 @@ from multiprocessing.pool import ThreadPool
 import threading
 import os
 
+
 app = Flask(__name__)
 with open("secret.txt", "r") as secret:
     app.secret_key = secret.read()
@@ -20,11 +21,12 @@ def index():
 @app.route("/login", methods=["POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form["username"].replace(" ", "")
         password = request.form["password"]
-        print(f"User:{username} Password:{password}")
         with open("user.txt", "r") as user:
-            user, key_pass = user.read().split("\n")[0:2]
+            data = user.read().split('\n')
+            user, key_pass = data[0].replace(" ", ""), data[1]
+            
         if username == user and password == key_pass:
             session["USERID"] = hashlib.md5(bytes(username + password, "utf-8")).hexdigest()
         else:
@@ -42,9 +44,9 @@ def videodownload():
 def videoworker():
     global linkList
     if request.method == "POST":
-        linkValue = request.data.decode()
+        linkValue, partNumber = request.data.decode()
         requestLink = ThreadPool(processes=1)
-        threadInstance = requestLink.apply_async(appCrawlerVersion, (linkValue, ))
+        threadInstance = requestLink.apply_async(appCrawlerVersion, (linkValue, partNumber))
         return "Request Succefful! Wait a moment!"
     else:
         abort(404)
@@ -54,15 +56,28 @@ def getLink():
     global linkList
     if linkList == []:
         return "Not Ready"
-    elif linkList[0][0] == False:
+    elif linkList[0][1] == False:
         return "Dont found this video"
+    elif linkList[0][0] == "Vimeo video waiting download! *15s*":
+        return "vimeo-15-downloading"
     else:
-        return f"{linkList[0][0]}-|||{linkList[0][1]}"
+        return f"{linkList[0][0]}-|||{linkList[0][1]}|||{linkList[0][2]}"
 
-def appCrawlerVersion(linkValue):
+@app.route("/logout", methods=["GET"])
+def logout():
+    session.pop("USERID")
+    return redirect(url_for("index"))
+
+def appCrawlerVersion(linkValue, partNumber):
     global linkList
     response = crawler.getPrincipalLinkVideo(linkValue)
-    linkList.append(response)
+    if response[0] == "vimeo":
+        linkList.append("Vimeo video waiting download! *15s*")
+        if partNumber == 0:
+            from videoplayer.player_3 import playerThree
+            playerThree.downloadVideo()
+    else:
+        linkList.append(response)
     return True
 
 

@@ -1,3 +1,6 @@
 src/**.txt
 !src/requirements.txt
 !src/runtime.txt
+src/**.log
+src/**.har
+src/vimeoVideo/

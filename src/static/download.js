@@ -1,15 +1,21 @@
-async function download(urlVideo, fileName, partNumber) {
+
+async function download(urlVideo, fileName, packageNumberReceive, partNumber) {
     var indexPart;
     var count;
     var percent;
     var initPercent = 0;
     var limit = false;
     const extension = ".ts";
-    var numberOfPackage = await getLastPackage(urlVideo, 600, 125, extension);
-    var separator = Math.ceil(numberOfPackage / 3);
+    if (packageNumberReceive != 0) {
+        var numberOfPackage = packageNumberReceive;
+    } else {
+        var numberOfPackage = await getLastPackage(urlVideo, 700, 125, extension);
+    }
+    var separator = Math.ceil(numberOfPackage / 3) + 1;
     if (partNumber == 0) {
         indexPart = 1;
         count = 1;
+        limit = numberOfPackage;
         percent = 100 / numberOfPackage;
     } else {
         indexPart = partNumber;
@@ -19,21 +25,21 @@ async function download(urlVideo, fileName, partNumber) {
         initPercent = count;
     };
     var urlForm;
-    fileNameOne = fileName + "-parte-" + indexPart + extension
-    var fileStream = streamSaver.createWriteStream(fileNameOne);
+    fileNameOne = fileName + "-parte-" + indexPart + extension;
+    var fileStream = await streamSaver.createWriteStream(fileNameOne);
     var finishfile = 0;
     urlForm = urlVideo + count + extension;
     while(true) {
-        await getVideoPart(fileStream, urlForm, true, true).then(async function(result) {
+        await getVideoPart(fileStream, urlForm, true).then(async function(result) {
             count += 1;
             urlForm = urlVideo + count + extension;
-            if (result[0] == "Finish" || limit == count) {
+            if (result == "Finish" || limit == count) {
                 const blob = new Blob([""]);
                 const stream = blob.stream()
                 await stream.pipeTo(fileStream)
                 finishfile = 1
             } else if (count == indexPart * separator) {
-                await getVideoPart(fileStream, urlForm, false, true).then(function(response) {
+                await getVideoPart(fileStream, urlForm, false).then(function(response) {
                     if (response != "Finish") {
                         indexPart += 1;
                         fileNamePart = fileName + "-parte-" + indexPart + extension;
@@ -68,8 +74,7 @@ async function getLastPackage(url, packageNumber, numberDown, extension) {
     });
 }
 
-async function getVideoPart(fileStream, url, prevent, saveFile) {
-    
+async function getVideoPart(fileStream, url, prevent) {
     var result = await fetch(url).then(function(response) {
         if (response.status == 404) {
             return "Finish";
@@ -82,18 +87,18 @@ async function getVideoPart(fileStream, url, prevent, saveFile) {
         });
 
     if (result == "Finish") {
-        return [result];
+        return result;
     }
-
-    if (saveFile == true) {
-        await result.blob().then(async function(content) {
-                const Readable = await content.stream()
-                if (window.WritableStream && Readable.pipeTo) {
-                    await Readable.pipeTo(fileStream, {preventClose:prevent});
-                    return true;
-                }
-            });
-        }
+    
+    await result.blob().then(async function(content) {
+            const Readable = await content.stream()
+            if (window.WritableStream && Readable.pipeTo) {
+                await Readable.pipeTo(fileStream, {preventClose:prevent});
+                return true;
+            };
+        });
     return true;
     
 }
+
+
