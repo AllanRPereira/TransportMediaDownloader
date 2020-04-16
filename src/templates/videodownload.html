@@ -8,6 +8,7 @@
         <script src="{{url_for("static", filename="sw.js")}}"></script> 
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="{{url_for("static", filename="bootstrap.css")}}" rel="stylesheet">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
         <style type="text/css">
             input[type="text"]:focus, input[type="password"]:focus {
                 outline : none !important;
@@ -84,7 +85,7 @@
                         <form>
                         <div class="row">
                             <div id="information" class="alert alert-warning alert-dismissible fade show" role="alert" style="width:100%">
-                                <strong><b>Informações:</b></strong> Insira um link para download!
+                                <b><b>Informações:</b></b> Insira um link para download!
                             </div>
                         </div>
                         <div class="progress" id="progressDiv" hidden>
@@ -105,6 +106,10 @@
         <script type="text/javascript">
             async function findVideo() {
                 var partNumber = 0;
+                document.getElementById("progressBar").outerHTML = `<div class="progress-bar bg-success" id="progressBar" role="progressbar" style="width:100%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">100%</div>`
+                document.getElementById("progressDiv").hidden = true;
+                document.getElementById("requestStatus").hidden = true;
+                document.getElementById("buttonClick").disabled = true;
                 var partChecked = document.getElementsByName("partVideo");
                 for(var value = 0; value < 3; value++) {
                     if(partChecked[value].checked == true) {
@@ -114,10 +119,9 @@
                 }
                 var alert = document.getElementById("information");
                 alert.innerHTML = `
-                               <strong>Informações:</strong> Requisição enviada estamos processando seu vídeo :D
+                               <b>Informações:</b> Requisição enviada estamos processando seu vídeo :D
                                `;
                 document.getElementById("requestStatus").hidden = false;
-                document.getElementById("buttonClick").disabled = true;
                 var linkVideo = document.getElementsByName("videolink")[0].value;
                 var statusWorker = "";
                 var response = await fetch("/videoworker", {method:"POST", body:[linkVideo, partNumber]});
@@ -126,22 +130,32 @@
                     var response = await fetch("/getlink", {method:"POST"});
                     var blob = await response.blob();
                     var text = await blob.text().then(function(text) {return text;});
-                    if (text != "Not Ready" && text != "Dont found this video") {
+                    if (text == "Not Ready") {
+                        // Nothing
+                    } else if (text == "Don't found this video") {
                         alert.className = "alert alert-danger alert-dismissible fade show"
                         alert.innerHTML = `
-                               <strong>Informações:</strong> Infelizmente houve algum erro na busca do vídeo :(, fale com allan pra ele resolver! 
+                               <b>Informações:</b> Infelizmente não foi possível encontrar esse vídeo :(, tente novamente por favor!
                                `;
                         document.getElementById("buttonClick").disabled = false;
+                        document.getElementById("requestStatus").hidden = true;
                         return false
-                    } else if (text == "Dont found this video") {
-                        alert.className = "alert alert-danger alert-dismissible fade show"
+                    } else if (text == "vimeo-15-downloading") {
+                        alert.className = "alert alert-success alert-dismissible fade show"
                         alert.innerHTML = `
-                               <strong>Informações:</strong> Infelizmente não foi possível encontrar esse vídeo :(, tente novamente por favor!
+                               <b>Informações:</b> Estamos fazendo download do seu vídeo nos nossos servidores! Aguarde um instante para começar o download no seu celular :D
                                `;
-                        document.getElementById("buttonClick").disabled = false;
-                        return false
-                    } 
-                    await new Promise(r => setTimeout(r, 5000));
+                        document.getElementById("requestStatus").className = "spinner-grow text-success";
+                        if (partNumber==0) {
+                            await vimeoDownload("complete");
+                        } else {
+                            await vimeoDownload("part");
+                        }
+                        return true
+                    } else {
+                        break
+                    }
+                    await new Promise(r => setTimeout(r, 20000));
                 }
                 var listData = text.split("|||")
                 var title = listData[0];
@@ -150,17 +164,74 @@
                               
                 alert.className = "alert alert-success alert-dismissible fade show";
                 alert.innerHTML = `
-                            <strong>Informações:</strong> Tudo Certo :) O download já vai começar! Não esqueça de permitir os download e a abertura de popups no site
+                            <b>Informações:</b> Tudo Certo :) O download já vai começar! Não esqueça de permitir os download e a abertura de popups no site
                             `;
                 document.getElementById("requestStatus").hidden = true;
                 document.getElementById("progressDiv").hidden = false;
                 await download(link, title, package, partNumber);
                 alert.className = "alert alert-info alert-dismissible fade show";
                 alert.innerHTML = `
-                            <strong>Informações:</strong> Uhuuu seu download deu certo! Acabando esse já pode fazer outro :D
+                            <b>Informações:</b> Uhuuu seu download deu certo! Acabando esse já pode fazer outro :D
                             `;
                 document.getElementById("buttonClick").disabled = false;
                 return false;
+            }
+            async function vimeoDownload(mode) {
+                var partsDownload = 0;
+                var alert = document.getElementById("information");
+                while (true) {
+                    if (partsDownload == 3) {
+                        alert.className = "alert alert-info alert-dismissible fade show";
+                        alert.innerHTML = `
+                                    <b>Informações:</b> Uhuuu seu download deu certo! Acabando esse já pode fazer outro :D
+                                    `;
+                        document.getElementById("requestStatus").hidden = true;
+                        document.getElementById("buttonClick").disabled = false;
+                        return true
+                    }
+                    await new Promise(r => setTimeout(r, 10000));
+                    var result = await fetch("/getfilevimeo", {method : "POST"})
+                    if (result.headers.get("content-type") == "video/mp4") {
+                        var filename = result.headers.get("Content-Disposition").split(";")[1].split("filename=")[1]
+                        alert.innerHTML += "<b>Informações:</b> Parte " + (partsDownload + 1) + " acabou de chegar :D";
+                        var blobing = await result.blob()
+                        var readableStream = await blobing.stream()
+                        var fileStream = streamSaver.createWriteStream(filename)
+                        await readableStream.pipeTo(fileStream)
+                        partsDownload += 1
+                        if (mode == "part" || partsDownload == 3) {
+                            var bodyString = "completed";
+                        } else {
+                            var partDown = partsDownload + 1
+                            var bodyString = "part&" + partDown;
+                        }
+
+                        await fetch("/confirmvdownload", {
+                            method : "POST",
+                            headers : {
+                                "Content-Type" : "text/plain",
+                            },
+                            mode : "cors",
+                            body : bodyString 
+                        })
+                        if (mode == "part") {
+                            alert.className = "alert alert-info alert-dismissible fade show";
+                            alert.innerHTML = `
+                                        <b>Informações:</b> Uhuuu seu download deu certo! Acabando esse já pode fazer outro :D
+                                        `;
+                            document.getElementById("requestStatus").hidden = true;
+                            document.getElementById("buttonClick").disabled = false;
+                            return true
+                        }
+                    }
+                }
+                alert.className = "alert alert-danger alert-dismissible fade show"
+                alert.innerHTML = `
+                        <b>Informações:</b> Infelizmente não foi possível encontrar esse vídeo :(, tente novamente por favor!
+                        `;
+                document.getElementById("buttonClick").disabled = false;
+                document.getElementById("requestStatus").hidden = true;
+
             }
 
         </script>

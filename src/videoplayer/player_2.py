@@ -48,7 +48,7 @@ def getVideoFormat(harDict):
                 return False
             numberOfParts = max([int(urls.split(".")[0].split("-")[::-1][0]) for urls in requestParts.split("\n") if urls.find(".ts") != -1])
             linkDownload = urlParts.split(".m3u8")[0] + "-"
-            return ("https://cors-anywhere.herokuapp.com/"+linkDownload, numberOfParts)
+            return ("http://videogabidownload.herokuapp.com/corslivestream/" + linkDownload, numberOfParts)
     return False
 
 if __name__ == "__main__":
