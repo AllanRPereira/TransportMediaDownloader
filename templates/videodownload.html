@@ -205,6 +205,7 @@
                             var partDown = partsDownload + 1
                             var bodyString = "part&" + partDown;
                         }
+<<<<<<< HEAD:templates/videodownload.html
                         var confirmed = false
                         for (var k = 0; k < 10;k++) {
                             var confirmResult = await fetch("/confirmvdownload", {
@@ -227,6 +228,17 @@
                             break
                         }
                         
+=======
+
+                        await fetch("/confirmvdownload", {
+                            method : "POST",
+                            headers : {
+                                "Content-Type" : "text/plain",
+                            },
+                            mode : "cors",
+                            body : bodyString 
+                        })
+>>>>>>> 86e859c08eba260a960a3d99e709e477df25b6bd:src/templates/videodownload.html
                         if (mode == "part") {
                             alert.className = "alert alert-info alert-dismissible fade show";
                             alert.innerHTML = `
