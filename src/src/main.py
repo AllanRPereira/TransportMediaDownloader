@@ -129,8 +129,6 @@ def confirmvdownload():
         return "Success"
     else:
         partDownloadNow = int(bodyValue.split("&")[1])
-        if len(lastestResponse) == 0:
-            return "Wait more time"
         instanceSendFiles = Process(target=sendDownloadFilesToClient, args=(queueManager, lastestResponse[0], partDownloadNow))
         instanceSendFiles.start()
         print("[CONFIRM] Parte Confirmada, nova parte adicionada a pilha")
