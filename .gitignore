@@ -1,6 +1,9 @@
 <<<<<<< HEAD
-*.har
+*.txt
 *.log
+*.har
+!runtime.txt
+!requirements.txt
 
 =======
 src/**.txt
@@ -9,4 +12,4 @@ src/**.txt
 src/**.log
 src/**.har
 src/vimeoVideo/
->>>>>>> 86e859c08eba260a960a3d99e709e477df25b6bd
+>>>>>>> refs/remotes/origin/master
